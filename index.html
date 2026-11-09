@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Counting & Permutations</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#10243a;--bg2:#17405a;--ink:#f4f7f2;--mute:#a9c1cc;--a:#ffc857;--b:#5ee0b0;--c:#ff7f6e;--card:#ffffff14;box-sizing:border-box}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,sans-serif;color-scheme:dark}
+body{background:radial-gradient(circle at 80% 10%,var(--bg2),var(--bg) 60%)}
+.s{position:absolute;inset:0;padding:5vh 7vw 8vh;display:flex;flex-direction:column;justify-content:center;gap:2.2vh;opacity:0;visibility:hidden;transform:translateX(6vw);transition:.6s}
+.s.on{opacity:1;visibility:visible;transform:none}
+.s.out{transform:translateX(-6vw)}
+h1,h2{font-family:Fraunces,Georgia,serif;line-height:1.1}
+h1{font-size:clamp(34px,7vw,84px);font-weight:800}
+h2{font-size:clamp(26px,4.4vw,52px);color:var(--a)}
+p,li{font-size:clamp(16px,2.2vw,26px);line-height:1.45;max-width:62ch}
+.sub{color:var(--mute)}
+.r{opacity:0;transform:translateY(18px) scale(.97);transition:.5s;pointer-events:none}
+.r.show{opacity:1;transform:none}
+.f{font-family:Fraunces,serif;font-size:clamp(24px,4.4vw,54px);color:var(--b);font-weight:600}
+.card{background:var(--card);border:2px solid #ffffff22;border-radius:18px;padding:2vh 2vw}
+.row{display:flex;gap:1.6vw;flex-wrap:wrap;align-items:stretch}
+.row>*{flex:1 1 220px}
+.n{color:var(--a);font-weight:800}.g{color:var(--b);font-weight:800}.o{color:var(--c);font-weight:800}
+.tag{font-weight:800;color:var(--bg);background:var(--a);border-radius:99px;padding:.2em .8em;display:inline-block;font-size:clamp(14px,1.8vw,20px)}
+.big{font-family:Fraunces,serif;font-size:clamp(40px,9vw,110px);color:var(--a);font-weight:800}
+.say{border-left:5px solid var(--c);padding-left:1.4vw;color:var(--mute);font-size:clamp(15px,1.9vw,22px)}
+.say b{color:var(--c)}
+.box{display:inline-block;min-width:3.2em;text-align:center;padding:.3em .6em;border-radius:12px;background:var(--a);color:var(--bg);font-weight:800;font-size:clamp(18px,3vw,36px)}
+.box.b2{background:var(--b)}.box.b3{background:var(--c)}.box.b4{background:#9db8ff}
+.mul{font-size:clamp(20px,3vw,36px);margin:0 .3em}
+.pop .box{animation:pop 2.4s infinite}
+@keyframes pop{0%,80%,100%{transform:none}90%{transform:translateY(-8px) scale(1.08)}}
+.tree{display:flex;gap:1vw;align-items:center;flex-wrap:wrap}
+.tree .col{display:flex;flex-direction:column;gap:.6vh}
+.chip{border-radius:10px;padding:.3em .7em;background:var(--card);border:2px solid var(--b);font-size:clamp(14px,1.8vw,22px);font-weight:700}
+#bar{position:fixed;left:0;bottom:0;height:5px;background:var(--a);transition:.4s;z-index:5}
+#nav{position:fixed;right:3vw;bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;z-index:5;color:var(--mute);font-weight:800}
+#nav button{border:0;border-radius:99px;width:46px;height:46px;font-size:22px;font-weight:800;background:var(--a);color:var(--bg);cursor:pointer}
+#nav button:focus-visible{outline:3px solid #fff}
+.q button{font:inherit;font-weight:800;border:2px solid var(--b);color:var(--ink);background:none;border-radius:12px;padding:.4em .9em;cursor:pointer;margin-top:1vh;pointer-events:auto}
+.ans{display:none;color:var(--b);font-weight:800;margin-top:.6vh}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style></head><body>
+
+<!-- 1 -->
+<section class="s on">
+<span class="tag r">Mathematics · Counting</span>
+<h1 class="r">Counting Principles<br>&amp; Permutations</h1>
+<p class="sub r">How do we count arrangements without writing every one down?</p>
+<p class="say r"><b>Say it:</b> Today we learn smart shortcuts to count "how many ways." Press → or click Next to build each slide.</p>
+</section>
+
+<!-- 2 -->
+<section class="s"><h2>Key words to know</h2>
+<div class="row">
+<div class="card r"><span class="g">Event</span><p>One or more outcomes.</p></div>
+<div class="card r"><span class="g">Sample space</span><p>All possible outcomes. Each one is a sample point.</p></div>
+<div class="card r"><span class="g">n factorial (n!)</span><p>Product of all integers from n down to 1.</p></div>
+<div class="card r"><span class="g">Linear permutation</span><p>Objects arranged in a row.</p></div>
+<div class="card r"><span class="g">Distinguishable</span><p>Some objects are alike, so some arrangements look the same.</p></div>
+</div>
+<p class="say r"><b>Say it:</b> Permutation = an arrangement where <u>order matters</u>. ABC and CBA are different.</p>
+</section>
+
+<!-- 3 -->
+<section class="s"><h2>Fundamental Counting Principle</h2>
+<p class="r">If one event can happen in <span class="n">m</span> ways and another in <span class="n">n</span> ways, both can happen in</p>
+<div class="f r">m × n ways</div>
+<div class="card r"><p><b>School lunch:</b> 2 main dishes × 2 side dishes × 2 drinks × 3 desserts</p>
+<div class="pop"><span class="box">2</span><span class="mul">×</span><span class="box b2">2</span><span class="mul">×</span><span class="box b3">2</span><span class="mul">×</span><span class="box b4">3</span><span class="mul">=</span><span class="box">24</span></div></div>
+<p class="say r"><b>Say it:</b> Each choice multiplies the options. 24 different lunches are possible.</p>
+</section>
+
+<!-- 4 -->
+<section class="s"><h2>Tree diagram: the same idea, drawn</h2>
+<p class="r">Family with 2 children: each child is Boy (B) or Girl (G).</p>
+<div class="tree r">
+<div class="col"><div class="chip">1st child</div></div><span>➜</span>
+<div class="col"><div class="chip">B</div><div class="chip">G</div></div><span>➜</span>
+<div class="col"><div class="chip">BB</div><div class="chip">BG</div><div class="chip">GB</div><div class="chip">GG</div></div>
+</div>
+<p class="r">Four children: 2 × 2 × 2 × 2 = <span class="big" style="font-size:inherit">16</span> outcomes (BBBB … GGGG).</p>
+<p class="say r"><b>Say it:</b> Every branch splits again. Count the endings to get the total.</p>
+</section>
+
+<!-- 5 -->
+<section class="s"><h2>Factorial notation</h2>
+<p class="r">n! means multiply a descending series of natural numbers.</p>
+<div class="card r"><p>3! = 3 × 2 × 1 = <span class="n">6</span></p><p>4! = 4 × 3 × 2 × 1 = <span class="n">24</span></p><p>5! = 5 × 4 × 3 × 2 × 1 = <span class="n">120</span></p><p>6! = <span class="n">720</span> &nbsp; 7! = <span class="n">5,040</span> &nbsp; 8! = <span class="n">40,320</span></p></div>
+<p class="say r"><b>Say it:</b> "5!" is read "five factorial." It grows very fast!</p>
+</section>
+
+<!-- 6 -->
+<section class="s"><h2>Working with factorials</h2>
+<div class="row">
+<div class="card r"><span class="tag">Multiply</span><p>5!2! = 120 × 2 = <span class="n">240</span></p><p>6!3! = 720 × 6 = <span class="n">4,320</span></p></div>
+<div class="card r"><span class="tag">Divide: cancel!</span><p>10!/5! = 10·9·8·7·6·<s>5!</s>/<s>5!</s> = <span class="n">30,240</span></p><p>8!/(3!2!) = 6,720/2 = <span class="n">3,360</span></p></div>
+<div class="card r"><span class="tag">Add / subtract</span><p>6! − 4! = 720 − 24 = <span class="n">696</span></p><p>7! + 2! = 5,040 + 2 = <span class="n">5,042</span></p></div>
+</div>
+<p class="say r"><b>Say it:</b> When dividing, write out the bigger factorial until it matches the smaller one, then cancel. For + and −, compute each factorial first.</p>
+</section>
+
+<!-- 7 -->
+<section class="s"><h2>Permutation of n objects, all at once</h2>
+<div class="f r">ₙPₙ = n!</div>
+<div class="row">
+<div class="card r"><p>5 cars finish a race, no ties.</p><p>₅P₅ = 5! = <span class="n">120</span> ways</p></div>
+<div class="card r"><p>10 books on a shelf.</p><p>₁₀P₁₀ = 10! = <span class="n">3,628,800</span></p></div>
+<div class="card r"><p>6 numbers in a lottery code.</p><p>₆P₆ = 6! = <span class="n">720</span></p></div>
+</div>
+<p class="say r"><b>Say it:</b> First place has n choices, next n−1, next n−2 … down to 1.</p>
+</section>
+
+<!-- 8 -->
+<section class="s"><h2>Taking r at a time</h2>
+<div class="f r">ₙPᵣ = n! ÷ (n − r)!  &nbsp;<span style="font-size:.5em;color:var(--mute)">where r &lt; n</span></div>
+<div class="row">
+<div class="card r"><p>5 cars, first 2 places:</p><p>₅P₂ = 5!/3! = 5·4 = <span class="n">20</span></p></div>
+<div class="card r"><p>7 chairs, 3 people:</p><p>₇P₃ = 7·6·5 = <span class="n">210</span></p></div>
+<div class="card r"><p>President, Secretary, Treasurer from 12:</p><p>₁₂P₃ = 12·11·10 = <span class="n">1,320</span></p></div>
+</div>
+<p class="say r"><b>Say it:</b> Only multiply the first r numbers of the factorial. The rest cancels.</p>
+</section>
+
+<!-- 9 -->
+<section class="s"><h2>Permutations without repetition</h2>
+<p class="r">How many 4-digit numbers from 1, 3, 4, 6, 8, 9 if no digit repeats?</p>
+<div class="pop r"><span class="box">6</span><span class="mul">×</span><span class="box b2">5</span><span class="mul">×</span><span class="box b3">4</span><span class="mul">×</span><span class="box b4">3</span><span class="mul">=</span><span class="box">360</span></div>
+<p class="r sub">thousands · hundreds · tens · ones</p>
+<div class="card r"><p>3-letter words from D, A, P (no repeat): 3 × 2 × 1 = <span class="n">6</span> (DAP, DPA, ADP, APD, PDA, PAD)</p></div>
+<p class="say r"><b>Say it:</b> Each place has one fewer choice, because one item is already used.</p>
+</section>
+
+<!-- 10 -->
+<section class="s"><h2>Permutations with repetition</h2>
+<div class="f r">P = nʳ</div>
+<p class="r">n = things to choose from, r = how many we choose. Repeats allowed, order matters.</p>
+<div class="row">
+<div class="card r"><p>5-item true/false exam</p><p>2⁵ = <span class="n">32</span></p></div>
+<div class="card r"><p>3-letter words from DAP, repeats OK</p><p>3³ = <span class="n">27</span></p></div>
+<div class="card r"><p>5-digit security code (0–9)</p><p>10⁵ = <span class="n">100,000</span></p></div>
+</div>
+<p class="r">Jane's password: 3 letters (21 choices) then 2 digits (1–9): 21³ × 9 × 9 = <span class="n">750,141</span></p>
+<p class="say r"><b>Say it:</b> Same number of choices every time, so just multiply n by itself r times.</p>
+</section>
+
+<!-- 11 -->
+<section class="s"><h2>Permutations with some alike</h2>
+<div class="f r">P = n! ÷ (p! q! r! …)</div>
+<div class="row">
+<div class="card r"><p><b>BEER</b> (two E's)</p><p>4!/2! = <span class="n">12</span></p></div>
+<div class="card r"><p><b>BANANA</b> (A×3, N×2)</p><p>6!/(3!·2!) = <span class="n">60</span></p></div>
+<div class="card r"><p><b>RESPECT</b> (two E's)</p><p>7!/2! = <span class="n">2,520</span></p></div>
+</div>
+<p class="say r"><b>Say it:</b> Swapping two identical letters changes nothing, so divide out those duplicate arrangements.</p>
+</section>
+
+<!-- 12 -->
+<section class="s"><h2>Which formula do I use?</h2>
+<div class="row">
+<div class="card r"><span class="tag">All items, no repeat</span><p class="f" style="font-size:inherit">n!</p></div>
+<div class="card r"><span class="tag">r of n, no repeat</span><p class="f" style="font-size:inherit">n!/(n−r)!</p></div>
+<div class="card r"><span class="tag">Repeats allowed</span><p class="f" style="font-size:inherit">nʳ</p></div>
+<div class="card r"><span class="tag">Some items alike</span><p class="f" style="font-size:inherit">n!/(p!q!…)</p></div>
+</div>
+<p class="say r"><b>Ask yourself:</b> Does order matter? Can items repeat? Are some items identical?</p>
+</section>
+
+<!-- 13 -->
+<section class="s q"><h2>Your turn</h2>
+<div class="card r"><p>1. Ten cyclists race. How many ways can 1st, 2nd and 3rd be awarded?</p><button>Show answer</button><div class="ans">₁₀P₃ = 10·9·8 = 720</div></div>
+<div class="card r"><p>2. How many 4-digit numbers from 1, 3, 5, 6, 8, 9 with no repeat?</p><button>Show answer</button><div class="ans">6·5·4·3 = 360</div></div>
+<div class="card r"><p>3. How many 3-letter words from SMOKE with no repeat?</p><button>Show answer</button><div class="ans">₅P₃ = 5·4·3 = 60</div></div>
+<p class="say r"><b>Say it:</b> Try it first, then reveal the answer.</p>
+</section>
+
+<!-- 14 -->
+<section class="s"><span class="tag r">Recap</span>
+<h1 class="r">Count smart, not hard.</h1>
+<p class="r">Multiply choices · use factorials · divide out duplicates.</p>
+<p class="sub r">Thank you!</p></section>
+
+<div id="bar"></div>
+<div id="nav"><span id="ct"></span><button id="pv" aria-label="Previous">‹</button><button id="nx" aria-label="Next">›</button></div>
+<script>
+const S=[...document.querySelectorAll('.s')];let i=0;
+const bar=document.getElementById('bar'),ct=document.getElementById('ct');
+function ui(){bar.style.width=(i+1)/S.length*100+'%';ct.textContent=(i+1)+' / '+S.length}
+function open(n,back){S[i].classList.remove('on');S[i].classList.toggle('out',!back);i=n;
+ const s=S[i];s.classList.remove('out');
+ if(back)s.querySelectorAll('.r').forEach(e=>e.classList.add('show'));
+ else s.querySelectorAll('.r').forEach(e=>e.classList.remove('show'));
+ s.classList.add('on');ui();if(!back)step()}
+function step(){const h=S[i].querySelector('.r:not(.show)');if(h){h.classList.add('show');return true}return false}
+function next(){if(!step()&&i<S.length-1)open(i+1,false)}
+function prev(){if(i>0)open(i-1,true)}
+document.getElementById('nx').onclick=next;document.getElementById('pv').onclick=prev;
+addEventListener('keydown',e=>{if(['ArrowRight',' ','PageDown','Enter'].includes(e.key)){e.preventDefault();next()}if(['ArrowLeft','PageUp'].includes(e.key))prev()});
+let x0=0;addEventListener('touchstart',e=>x0=e.touches[0].clientX);
+addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-x0;if(d<-50)next();if(d>50)prev()});
+document.querySelectorAll('.q button').forEach(b=>b.onclick=()=>{b.nextElementSibling.style.display='block';b.style.display='none'});
+S[0].querySelectorAll('.r').forEach((e,k)=>setTimeout(()=>e.classList.add('show'),300+k*450));
+ui();
+</script></body></html>
