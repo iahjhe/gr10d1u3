@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Counting & Permutations | Interactive Mini Quiz</title>
+<style>
+:root{
+  --bg:#090909;--panel:#151515;--panel2:#202020;--line:#3a3a3a;
+  --text:#f5f5f5;--muted:#aaa;--soft:#d6d6d6;--accent:#fff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{background:radial-gradient(circle at 75% 20%,#242424 0,transparent 35%),linear-gradient(135deg,#080808,#171717)}
+button{font:inherit}
+.deck{height:100dvh;width:100%;position:relative}
+.slide{position:absolute;inset:0;display:none;padding:clamp(24px,5vw,76px);padding-bottom:110px;overflow-y:auto;align-items:center;justify-content:center}
+.slide.active{display:flex;animation:appear .45s ease both}
+.content{width:min(1100px,100%);margin:auto}
+@keyframes appear{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.eyebrow{font-size:clamp(12px,1.4vw,16px);letter-spacing:.24em;text-transform:uppercase;color:#aaa;margin-bottom:22px}
+h1{font-size:clamp(42px,7vw,88px);line-height:.98;letter-spacing:-.055em;margin:0 0 26px;font-weight:800}
+h2{font-size:clamp(32px,5vw,58px);letter-spacing:-.04em;line-height:1.02;margin:0 0 24px}
+h3{font-size:clamp(22px,3vw,30px);margin:0 0 14px}
+p{font-size:clamp(18px,2vw,25px);line-height:1.5;color:#d0d0d0;margin:12px 0}
+.lead{font-size:clamp(21px,2.6vw,32px);max-width:850px}
+.muted{color:var(--muted)}
+.big-number{font-size:clamp(76px,14vw,170px);font-weight:800;letter-spacing:-.08em;line-height:1}
+.formula{font-size:clamp(30px,5vw,58px);font-weight:750;letter-spacing:-.035em;background:#f1f1f1;color:#111;padding:22px 30px;border-radius:18px;display:inline-block;margin:16px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}
+.tile{background:linear-gradient(145deg,#202020,#111);border:1px solid var(--line);border-radius:20px;padding:22px}
+.tile p{font-size:clamp(16px,1.7vw,21px);margin:8px 0}
+.steps{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:24px 0}
+.step{background:#242424;border:1px solid #555;border-radius:14px;padding:15px 19px;font-size:clamp(18px,2.2vw,26px);font-weight:700}
+.operator{font-size:30px;color:#aaa}
+.question{font-size:clamp(25px,3.5vw,42px);font-weight:750;line-height:1.2;max-width:950px;margin:10px 0 24px}
+.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:850px}
+.option{border:1px solid #555;background:#171717;color:#eee;border-radius:14px;padding:17px 20px;text-align:left;font-size:clamp(18px,2vw,24px);cursor:pointer;transition:.2s}
+.option:hover{background:#303030;border-color:#aaa;transform:translateY(-2px)}
+.option.selected{background:#eee;color:#111;border-color:#fff}
+.option.correct{background:#d9d9d9;color:#111;border-color:#fff}
+.option.wrong{background:#454545;color:#fff;border-color:#aaa}
+.feedback{min-height:34px;margin-top:16px;font-size:18px;color:#ddd}
+.timer-wrap{display:flex;align-items:center;gap:16px;margin:22px 0 10px}
+.timer{font-variant-numeric:tabular-nums;font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.04em}
+.timer-label{color:#aaa;text-transform:uppercase;letter-spacing:.16em;font-size:12px}
+.timer-track{height:5px;background:#444;border-radius:9px;overflow:hidden;max-width:430px}
+.timer-fill{height:100%;width:100%;background:#eee;transition:width 1s linear}
+.controls{position:fixed;z-index:20;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px clamp(18px,4vw,54px);background:linear-gradient(0deg,#080808 65%,transparent)}
+.navgroup{display:flex;gap:10px}
+.navbtn{border:1px solid #555;background:#1b1b1b;color:#fff;padding:12px 18px;border-radius:999px;cursor:pointer;font-weight:700}
+.navbtn:hover{background:#eee;color:#111}
+.navbtn:disabled{opacity:.3;cursor:not-allowed}
+.progress-area{display:flex;align-items:center;gap:12px;color:#aaa;font-size:14px}
+.progress{width:min(24vw,220px);height:4px;background:#444;border-radius:8px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:#eee;transition:width .3s}
+.pill{display:inline-block;border:1px solid #555;border-radius:999px;padding:8px 13px;color:#ccc;font-size:14px;margin:5px 6px 5px 0}
+.answer{border-left:3px solid #eee;padding:5px 0 5px 18px;margin:16px 0}
+.answer strong{font-size:clamp(20px,2.3vw,27px)}
+.small{font-size:15px;color:#aaa}
+table{width:100%;border-collapse:collapse;margin-top:18px;font-size:clamp(16px,1.8vw,21px)}
+td,th{padding:14px 12px;border-bottom:1px solid #444;text-align:left}
+th{color:#aaa;text-transform:uppercase;font-size:13px;letter-spacing:.12em}
+.reveal{border:1px solid #777;background:#eee;color:#111;padding:12px 18px;border-radius:999px;font-weight:800;cursor:pointer;margin-top:12px}
+.hidden{display:none}
+.keyrow{display:grid;grid-template-columns:58px 1fr;gap:14px;padding:13px 0;border-bottom:1px solid #393939}
+.keyrow b{font-size:22px}
+.keyrow p{font-size:17px;margin:2px 0}
+@media(max-width:700px){
+ .slide{padding:26px 22px 105px}
+ .grid,.options{grid-template-columns:1fr}
+ .controls{padding:12px 14px}
+ .navbtn{padding:10px 14px}
+ .progress-area{display:none}
+ .formula{font-size:30px}
+}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+  <section class="slide active">
+    <div class="content">
+      <div class="eyebrow">Interactive mathematics mini quiz · 30 minutes</div>
+      <h1>COUNTING<br> & PERMUTATIONS</h1>
+      <p class="lead">A quick challenge on the Fundamental Counting Principle, tree diagrams, factorials, and permutations.</p>
+      <div style="margin-top:28px">
+        <span class="pill">10 questions</span><span class="pill">30-minute session</span><span class="pill">Answer explanations</span>
+      </div>
+      <p class="small" style="margin-top:38px">Use the arrow keys or the navigation buttons to move through the slides.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="eyebrow">01 · Session guide</div><h2>Your 30-minute challenge</h2>
+      <div class="grid">
+        <div class="tile"><div class="big-number">05</div><h3>Minutes</h3><p>Review the key ideas and formulas.</p></div>
+        <div class="tile"><div class="big-number">20</div><h3>Minutes</h3><p>Answer 10 questions. Aim for about 2 minutes each.</p></div>
+        <div class="tile"><div class="big-number">05</div><h3>Minutes</h3><p>Check the answer key and study the solutions.</p></div>
+        <div class="tile"><h3>How to answer</h3><p>Choose one option. Your selection is highlighted. The correct answer and explanation appear when you reveal it.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="eyebrow">02 · Quick review</div><h2>Fundamental Counting Principle</h2>
+      <p>If one event can happen in <b>m</b> ways and another event can happen in <b>n</b> ways, the two events can happen in:</p>
+      <div class="formula">m × n</div>
+      <div class="steps"><div class="step">3 shirts</div><div class="operator">×</div><div class="step">4 pants</div><div class="operator">=</div><div class="step">12 outfits</div></div>
+      <p class="muted">Multiply the number of choices at each independent step.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="eyebrow">03 · Quick review</div><h2>Tree diagrams</h2>
+      <p>A tree diagram shows every possible choice by branching from one step to the next.</p>
+      <div class="grid">
+        <div class="tile"><h3>First toss</h3><div class="steps"><div class="step">H</div><div class="step">T</div></div></div>
+        <div class="tile"><h3>Second toss</h3><div class="steps"><div class="step">HH</div><div class="step">HT</div><div class="step">TH</div><div class="step">TT</div></div></div>
+      </div>
+      <p>Two choices on each of two tosses: 2 × 2 = <b>4 outcomes</b>.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="eyebrow">04 · Quick review</div><h2>Factorial notation</h2>
+      <p>The exclamation mark means multiply a descending sequence of positive whole numbers.</p>
+      <div class="formula">5! = 5 × 4 × 3 × 2 × 1 = 120</div>
+      <div class="grid">
+        <div class="tile"><h3>Multiply</h3><p>5! × 2! = 120 × 2 = <b>240</b></p></div>
+        <div class="tile"><h3>Add / subtract</h3><p>6! − 4! = 720 − 24 = <b>696</b></p></div>
+        <div class="tile"><h3>Divide and cancel</h3><p>10! / 5! = 10 × 9 × 8 × 7 × 6 = <b>30,240</b></p></div>
+        <div class="tile"><h3>Remember</h3><p>0! = 1. Also, evaluate each factorial before adding or subtracting.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="eyebrow">05 · Quick review</div><h2>Permutations</h2>
+      <p>A permutation is an arrangement where <b>order matters</b>.</p>
+      <div class="tile">
+        <h3>All objects at once</h3><div class="formula">ₙPₙ = n!</div>
+        <p>Arrange all 5 books: 5! = 120 ways.</p>
+      </div>
+      <div class="tile" style="margin-top:14px">
+        <h3>Choose and arrange r objects</h3><div class="formula">ₙPᵣ = n! / (n − r)!</div>
+        <p>Example: 5 cars, first 2 places: 5 × 4 = 20 ways.</p>
+      </div>
+      <p class="muted">President, secretary, and treasurer are different roles, so changing who holds a role creates a different arrangement.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="eyebrow">06 · Quiz time</div><h2>Ready? Let's begin.</h2>
+      <p class="lead">There are 10 questions. You have 20 minutes for the quiz section, with approximately 2 minutes per question.</p>
+      <div class="formula">20:00</div>
+      <p>Use the timer controls on the question slides. The timer can be paused or reset at any time.</p>
+      <button class="reveal" onclick="startQuiz()">Start the quiz timer</button>
+    </div>
+  </section>
+
+  <section class="slide question-slide" data-answer="B" data-explain="Multiply the choices at each step: 3 shirts × 4 pairs of pants = 12 different outfits.">
+    <div class="content">
+      <div class="eyebrow">Question 01 of 10 · Fundamental Counting Principle</div>
+      <div class="timer-wrap"><div><div class="timer-label">Question timer</div><div class="timer">02:00</div></div><div style="flex:1"><div class="timer-track"><div class="timer-fill"></div></div><div class="small">2 minutes</div></div><button class="navbtn" onclick="toggleTimer(this)">Pause</button><button class="navbtn" onclick="resetQuestionTimer(this)">Reset</button></div>
+      <div class="question">A student has 3 shirts and 4 pairs of pants. How many different outfits can the student make?</div>
+      <div class="options"><button class="option" data-value="A">A · 7</button><button class="option" data-value="B">B · 12</button><button class="option" data-value="C">C · 15</button><button class="option" data-value="D">D · 24</button></div>
+      <div class="feedback"></div><button class="reveal" onclick="revealAnswer(this)">Reveal answer & explanation</button>
+    </div>
+  </section>
+
+  <section class="slide question-slide" data-answer="C" data-explain="There are three stages: 2 appetizer choices × 5 main-course choices × 3 dessert choices = 30 complete meals.">
+    <div class="content">
+      <div class="eyebrow">Question 02 of 10 · Fundamental Counting Principle</div>
+      <div class="timer-wrap"><div><div class="timer-label">Question timer</div><div class="timer">02:00</div></div><div style="flex:1"><div class="timer-track"><div class="timer-fill"></div></div><div class="small">2 minutes</div></div><button class="navbtn" onclick="toggleTimer(this)">Pause</button><button class="navbtn" onclick="resetQuestionTimer(this)">Reset</button></div>
+      <div class="question">A restaurant offers 2 appetizers, 5 main courses, and 3 desserts. How many different complete meals are possible?</div>
+      <div class="options"><button class="option" data-value="A">A · 10</button><button class="option" data-value="B">B · 15</button><button class="option" data-value="C">C · 30</button><button class="option" data-value="D">D · 35</button></div>
+      <div class="feedback"></div><button class="reveal" onclick="revealAnswer(this)">Reveal answer & explanation</button>
+    </div>
+  </section>
+
+  <section class="slide question-slide" data-answer="C" data-explain="Each coin toss has 2 possible outcomes. For two tosses: 2 × 2 = 4. The outcomes are HH, HT, TH, and TT.">
+    <div class="content">
+      <div class="eyebrow">Question 03 of 10 · Tree diagrams</div>
+      <div class="timer-wrap"><div><div class="timer-label">Question timer</div><div class="timer">02:00</div></div><div style="flex:1"><div class="timer-track"><div class="timer-fill"></div></div><div class="small">2 minutes</div></div><button class="navbtn" onclick="toggleTimer(this)">Pause</button><button class="navbtn" onclick="resetQuestionTimer(this)">Reset</button></div>
+      <div class="question">A coin is tossed twice. How many possible outcomes are there?</div>
+      <div class="options"><button class="option" data-value="A">A · 2</button><button class="option" data-value="B">B · 3</button><button class="option" data-value="C">C · 4</button><button class="option" data-value="D">D · 6</button></div>
+      <div class="feedback"></div><button class="reveal" onclick="revealAnswer(this)">Reveal answer & explanation</button>
+    </div>
+  </section>
+
+  <section class="slide question-slide" data-answer="B" data-explain="Choose 1 of 2 flavors and 1 of 3 toppings: 2 × 3 = 6 flavor-and-topping pairs.">
+    <div class="content">
+      <div class="eyebrow">Question 04 of 10 · Tree diagrams / counting</div>
+      <div class="timer-wrap"><div><div class="timer-label">Question timer</div><div class="timer">02:00</div></div><div style="flex:1"><div class="timer-track"><div class="timer-fill"></div></div><div class="small">2 minutes</div></div><button class="navbtn" onclick="toggleTimer(this)">Pause</button><button class="navbtn" onclick="resetQuestionTimer(this)">Reset</button></div>
+      <div class="question">A student can choose 1 of 2 ice cream flavors and 1 of 3 toppings. How many choices are possible?</div>
+      <div class="options"><button class="option" data-value="A">A · 5</button><button class="option" data-value="B">B · 6</button><button class="option" data-value="C">C · 8</button><button class="option" data-value="D">D · 9</button></div>
+      <div class="feedback"></div><button class="reveal" onclick="revealAnswer(this)">Reveal answer & explanation</button>
+    </div>
+  </section>
+
+  <section class="slide question-slide" data-answer="C" data-explain="5! = 5 × 4 × 3 × 2 × 1 = 120.">
+    <div class="content">
+      <div class="eyebrow">Question 05 of 10 · Factorial notation</div>
+      <div class="timer-wrap"><div><div class="timer-label">Question timer</div><div class="timer">02:00</div></div><div style="flex:1"><div class="timer-track"><div class="timer-fill"></div></div><div class="small">2 minutes</div></div><button class="navbtn" onclick="toggleTimer(this)">Pause</button><button class="navbtn" onclick="resetQuestionTimer(this)">Reset</button></div>
+      <div class="question">What is the value of 5! ?</div>
+      <div class="options"><button class="option" data-value="A">A · 25</button><button class="option" data-value="B">B · 60</button><button class="option" data-value="C">C · 120</button><button class="option" data-value="D">D · 150</button></div>
+      <div class="feedback"></div><button class="reveal" onclick="revealAnswer(this)">Reveal answer & explanation</button>
+    </div>
+  </section>
+
+  <section class="slide question-slide" data-answer="A" data-explain="Evaluate the factorials first: 6! = 720 and 4! = 24. Then subtract: 720 − 24 = 696.">
+    <div class="content">
+      <div class="eyebrow">Question 06 of 10 · Working with factorials</div>
+      <div class="timer-wrap"><div><div class="timer-label">Question timer</div><div class="timer">02:00</div></div><div style="flex:1"><div class="timer-track"><div class="timer-fill"></div></div><div class="small">2 minutes</div></div><button class="navbtn" onclick="toggleTimer(this)">Pause</button><button class="navbtn" onclick="resetQuestionTimer(this)">Reset</button></div>
+      <div class="question">Evaluate: 6! − 4!</div>
+      <div class="options"><button class="option" data-value="A">A · 696</button><button class="option" data-value="B">B · 704</button><button class="option" data-value="C">C · 720</button><button class="option" data-value="D">D · 744</button></div>
+      <div class="feedback"></div><button class="reveal" onclick="revealAnswer(this)">Reveal answer & explanation</button>
+    </div>
+  </section>
+
+  <section class="slide question-slide" data-answer="C" data-explain="8! = 40,320; 3! = 6; and 2! = 2. The denominator is 6 × 2 = 12. Then 40,320 ÷ 12 = 3,360.">
+    <div class="content">
+      <div class="eyebrow">Question 07 of 10 · Working with factorials</div>
+      <div class="timer-wrap"><div><div class="timer-label">Question timer</div><div class="timer">02:00</div></div><div style="flex:1"><div class="timer-track"><div class="timer-fill"></div></div><div class="small">2 minutes</div></div><button class="navbtn" onclick="toggleTimer(this)">Pause</button><button class="navbtn" onclick="resetQuestionTimer(this)">Reset</button></div>
+      <div class="question">Simplify: 8! ÷ (3! × 2!)</div>
+      <div class="options"><button class="option" data-value="A">A · 1,680</button><button class="option" data-value="B">B · 2,520</button><button class="option" data-value="C">C · 3,360</button><button class="option" data-value="D">D · 4,320</button></div>
+      <div class="feedback"></div><button class="reveal" onclick="revealAnswer(this)">Reveal answer & explanation</button>
+    </div>
+  </section>
+
+  <section class="slide question-slide" data-answer="D" data-explain="When all 5 different books are arranged, order matters and every book is used. Therefore 5P5 = 5! = 120 arrangements.">
+    <div class="content">
+      <div class="eyebrow">Question 08 of 10 · Permutations</div>
+      <div class="timer-wrap"><div><div class="timer-label">Question timer</div><div class="timer">02:00</div></div><div style="flex:1"><div class="timer-track"><div class="timer-fill"></div></div><div class="small">2 minutes</div></div><button class="navbtn" onclick="toggleTimer(this)">Pause</button><button class="navbtn" onclick="resetQuestionTimer(this)">Reset</button></div>
+      <div class="question">How many ways can 5 different books be arranged on a shelf if all books are used?</div>
+      <div class="options"><button class="option" data-value="A">A · 25</button><button class="option" data-value="B">B · 60</button><button class="option" data-value="C">C · 100</button><button class="option" data-value="D">D · 120</button></div>
+      <div class="feedback"></div><button class="reveal" onclick="revealAnswer(this)">Reveal answer & explanation</button>
+    </div>
+  </section>
+
+  <section class="slide question-slide" data-answer="C" data-explain="Order matters because first place and second place are different positions. There are 5 choices for first and then 4 remaining choices for second: 5 × 4 = 20.">
+    <div class="content">
+      <div class="eyebrow">Question 09 of 10 · Permutations: r at a time</div>
+      <div class="timer-wrap"><div><div class="timer-label">Question timer</div><div class="timer">02:00</div></div><div style="flex:1"><div class="timer-track"><div class="timer-fill"></div></div><div class="small">2 minutes</div></div><button class="navbtn" onclick="toggleTimer(this)">Pause</button><button class="navbtn" onclick="resetQuestionTimer(this)">Reset</button></div>
+      <div class="question">There are 5 race cars. How many ways can first and second places be awarded?</div>
+      <div class="options"><button class="option" data-value="A">A · 10</button><button class="option" data-value="B">B · 15</button><button class="option" data-value="C">C · 20</button><button class="option" data-value="D">D · 25</button></div>
+      <div class="feedback"></div><button class="reveal" onclick="revealAnswer(this)">Reveal answer & explanation</button>
+    </div>
+  </section>
+
+  <section class="slide question-slide" data-answer="D" data-explain="The three offices are different, so order/role matters. 12P3 = 12!/(12−3)! = 12 × 11 × 10 = 1,320 ways.">
+    <div class="content">
+      <div class="eyebrow">Question 10 of 10 · Permutations: r at a time</div>
+      <div class="timer-wrap"><div><div class="timer-label">Question timer</div><div class="timer">02:00</div></div><div style="flex:1"><div class="timer-track"><div class="timer-fill"></div></div><div class="small">2 minutes</div></div><button class="navbtn" onclick="toggleTimer(this)">Pause</button><button class="navbtn" onclick="resetQuestionTimer(this)">Reset</button></div>
+      <div class="question">A class has 12 students. In how many ways can a president, secretary, and treasurer be selected?</div>
+      <div class="options"><button class="option" data-value="A">A · 220</button><button class="option" data-value="B">B · 720</button><button class="option" data-value="C">C · 1,120</button><button class="option" data-value="D">D · 1,320</button></div>
+      <div class="feedback"></div><button class="reveal" onclick="revealAnswer(this)">Reveal answer & explanation</button>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="eyebrow">07 · Review</div><h2>Answer key</h2>
+      <p>Check your choices. The explanations for the final permutation questions are expanded on the next slides.</p>
+      <div class="grid">
+        <div class="tile"><h3>01–05</h3><div class="keyrow"><b>1.</b><p><b>B · 12</b> — 3 × 4</p></div><div class="keyrow"><b>2.</b><p><b>C · 30</b> — 2 × 5 × 3</p></div><div class="keyrow"><b>3.</b><p><b>C · 4</b> — 2 × 2</p></div><div class="keyrow"><b>4.</b><p><b>B · 6</b> — 2 × 3</p></div><div class="keyrow"><b>5.</b><p><b>C · 120</b> — 5!</p></div></div>
+        <div class="tile"><h3>06–10</h3><div class="keyrow"><b>6.</b><p><b>A · 696</b> — 720 − 24</p></div><div class="keyrow"><b>7.</b><p><b>C · 3,360</b> — 40,320 ÷ 12</p></div><div class="keyrow"><b>8.</b><p><b>D · 120</b> — 5!</p></div><div class="keyrow"><b>9.</b><p><b>C · 20</b> — 5 × 4</p></div><div class="keyrow"><b>10.</b><p><b>D · 1,320</b> — 12 × 11 × 10</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="eyebrow">08 · Detailed solution</div><h2>Question 9: First and second place</h2>
+      <p class="lead">Five race cars compete. We award first place and second place.</p>
+      <div class="steps"><div class="step">5 choices for 1st</div><div class="operator">×</div><div class="step">4 choices for 2nd</div><div class="operator">=</div><div class="step">20 ways</div></div>
+      <div class="formula">₅P₂ = 5! / (5 − 2)! = 5 × 4 = 20</div>
+      <div class="answer"><strong>Correct answer: C · 20</strong><p>Why not 5 × 5? Once a car wins first place, it cannot also take second place. Only 4 cars remain.</p></div>
+      <p class="muted">The order matters: Car A first and Car B second is different from Car B first and Car A second.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="eyebrow">09 · Detailed solution</div><h2>Question 10: Assigning class officers</h2>
+      <p class="lead">Choose a president, secretary, and treasurer from 12 students.</p>
+      <div class="grid">
+        <div class="tile"><div class="big-number">12</div><h3>President</h3><p>Any of the 12 students can be selected.</p></div>
+        <div class="tile"><div class="big-number">11</div><h3>Secretary</h3><p>One student has already been selected, leaving 11.</p></div>
+        <div class="tile"><div class="big-number">10</div><h3>Treasurer</h3><p>Two students have already been selected, leaving 10.</p></div>
+        <div class="tile"><div class="big-number">1,320</div><h3>Total arrangements</h3><p>12 × 11 × 10 = 1,320.</p></div>
+      </div>
+      <div class="formula">₁₂P₃ = 12! / (12 − 3)! = 1,320</div>
+      <div class="answer"><strong>Correct answer: D · 1,320</strong><p>Why is this a permutation? Because the positions are different. A student being president is not the same as that student being treasurer.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="eyebrow">10 · Key takeaway</div><h2>How do I know which method to use?</h2>
+      <div class="tile"><h3>Fundamental Counting Principle</h3><p>Use multiplication when a task has multiple steps or stages.</p></div>
+      <div class="tile" style="margin-top:12px"><h3>Factorial</h3><p>Use n! when arranging all n different objects.</p></div>
+      <div class="tile" style="margin-top:12px"><h3>Permutation</h3><p>Use nPr when selecting and arranging only r objects from n, and order matters.</p></div>
+      <p class="lead" style="margin-top:28px">Remember: <b>if order matters, think permutation.</b></p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content" style="text-align:center">
+      <div class="eyebrow">End of presentation</div><div class="big-number">30:00</div>
+      <h2>Great work!</h2><p class="lead" style="margin:auto">You reviewed the concepts, completed the mini quiz, and studied the solutions.</p>
+      <button class="reveal" onclick="goTo(0)">Restart presentation</button>
+    </div>
+  </section>
+</div>
+
+<div class="controls">
+  <div class="navgroup"><button class="navbtn" id="prev" onclick="move(-1)">← Previous</button><button class="navbtn" id="next" onclick="move(1)">Next →</button></div>
+  <div class="progress-area"><span id="counter">1 / 17</span><div class="progress"><span id="progress"></span></div></div>
+  <div class="navgroup"><button class="navbtn" onclick="toggleFullscreen()">⛶ Fullscreen</button></div>
+</div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let current=0;
+function goTo(i){
+  if(i<0||i>=slides.length)return;
+  stopAllTimers();
+  slides[current].classList.remove('active');
+  current=i; slides[current].classList.add('active');
+  document.getElementById('counter').textContent=(current+1)+' / '+slides.length;
+  document.getElementById('progress').style.width=((current+1)/slides.length*100)+'%';
+  document.getElementById('prev').disabled=current===0;
+  document.getElementById('next').disabled=current===slides.length-1;
+}
+function move(d){goTo(current+d)}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();move(1)}
+  if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();move(-1)}
+});
+function toggleFullscreen(){
+  if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+const timerStates=new WeakMap();
+function stopAllTimers(){
+  document.querySelectorAll('.question-slide').forEach(s=>{
+    const st=timerStates.get(s);if(st&&st.interval){clearInterval(st.interval);st.interval=null;}
+  });
+}
+function startQuiz(){
+  const first=[...slides].findIndex(s=>s.classList.contains('question-slide'));
+  goTo(first);startTimer(slides[current]);
+}
+function startTimer(slide){
+  let st=timerStates.get(slide);
+  if(!st){st={remaining:120,interval:null};timerStates.set(slide,st);}
+  if(st.interval)return;
+  const timer=slide.querySelector('.timer');
+  const fill=slide.querySelector('.timer-fill');
+  const btn=slide.querySelector('.timer-wrap .navbtn');
+  if(btn)btn.textContent='Pause';
+  const paint=()=>{
+    const m=Math.floor(st.remaining/60),s=st.remaining%60;
+    timer.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    fill.style.width=(st.remaining/120*100)+'%';
+  };
+  paint();
+  st.interval=setInterval(()=>{
+    st.remaining=Math.max(0,st.remaining-1);paint();
+    if(st.remaining===0){clearInterval(st.interval);st.interval=null;if(btn)btn.textContent='Time up';}
+  },1000);
+}
+function toggleTimer(btn){
+  const slide=btn.closest('.question-slide');let st=timerStates.get(slide);
+  if(!st){startTimer(slide);return;}
+  if(st.interval){clearInterval(st.interval);st.interval=null;btn.textContent='Resume';}
+  else startTimer(slide);
+}
+function resetQuestionTimer(btn){
+  const slide=btn.closest('.question-slide');let st=timerStates.get(slide);
+  if(st?.interval)clearInterval(st.interval);
+  timerStates.set(slide,{remaining:120,interval:null});
+  const timer=slide.querySelector('.timer');const fill=slide.querySelector('.timer-fill');
+  timer.textContent='02:00';fill.style.width='100%';
+  const pause=slide.querySelector('.timer-wrap .navbtn');if(pause)pause.textContent='Pause';
+}
+document.querySelectorAll('.question-slide').forEach(slide=>{
+  slide.querySelectorAll('.option').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      slide.querySelectorAll('.option').forEach(x=>x.classList.remove('selected'));
+      btn.classList.add('selected');
+      slide.dataset.selected=btn.dataset.value;
+      slide.querySelector('.feedback').textContent='Your choice: '+btn.dataset.value+'. Reveal the answer when you are ready.';
+    });
+  });
+});
+function revealAnswer(btn){
+  const slide=btn.closest('.question-slide');
+  const correct=slide.dataset.answer,chosen=slide.dataset.selected;
+  slide.querySelectorAll('.option').forEach(o=>{
+    o.classList.remove('correct','wrong');
+    if(o.dataset.value===correct)o.classList.add('correct');
+    if(chosen&&o.dataset.value===chosen&&chosen!==correct)o.classList.add('wrong');
+  });
+  const feedback=slide.querySelector('.feedback');
+  feedback.innerHTML=(chosen===correct?'<b>Correct!</b> ':'<b>Correct answer: '+correct+'.</b> ')+slide.dataset.explain;
+  btn.textContent='Answer revealed';
+}
+goTo(0);
+</script>
+</body>
+</html>
