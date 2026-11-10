@@ -38,8 +38,23 @@ p,li{font-size:clamp(16px,2.2vw,26px);line-height:1.45;max-width:62ch}
 #nav{position:fixed;right:3vw;bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;z-index:5;color:var(--mute);font-weight:800}
 #nav button{border:0;border-radius:99px;width:46px;height:46px;font-size:22px;font-weight:800;background:var(--a);color:var(--bg);cursor:pointer}
 #nav button:focus-visible{outline:3px solid #fff}
+#nav .btn-activity{
+  width:auto;height:46px;padding:0 20px;font-size:clamp(14px,1.8vw,18px);
+  background:var(--b);color:var(--bg);border-radius:99px;text-decoration:none;
+  display:inline-flex;align-items:center;gap:6px;font-weight:800;
+  border:0;cursor:pointer;
+}
+#nav .btn-activity:focus-visible{outline:3px solid #fff}
 .q button{font:inherit;font-weight:800;border:2px solid var(--b);color:var(--ink);background:none;border-radius:12px;padding:.4em .9em;cursor:pointer;margin-top:1vh;pointer-events:auto}
 .ans{display:none;color:var(--b);font-weight:800;margin-top:.6vh}
+.cta{
+  display:inline-flex;align-items:center;gap:.5em;margin-top:1.4vh;padding:.7em 1.4em;
+  border-radius:99px;background:var(--b);color:var(--bg);font-weight:800;
+  font-size:clamp(16px,2vw,24px);text-decoration:none;width:max-content;
+  pointer-events:auto;
+}
+.cta:hover{background:#7ef0c8}
+.cta:focus-visible{outline:3px solid #fff}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style></head><body>
 
@@ -179,10 +194,17 @@ p,li{font-size:clamp(16px,2.2vw,26px);line-height:1.45;max-width:62ch}
 <section class="s"><span class="tag r">Recap</span>
 <h1 class="r">Count smart, not hard.</h1>
 <p class="r">Multiply choices · use factorials · divide out duplicates.</p>
-<p class="sub r">Thank you!</p></section>
+<p class="sub r">Thank you!</p>
+<a class="cta r" href="/activity/counting_permutations_30min_quiz.html">📝 Take the Practice Quiz →</a>
+</section>
 
 <div id="bar"></div>
-<div id="nav"><span id="ct"></span><button id="pv" aria-label="Previous">‹</button><button id="nx" aria-label="Next">›</button></div>
+<div id="nav">
+  <a class="btn-activity" href="/activity/counting_permutations_30min_quiz.html">📝 View Activity</a>
+  <span id="ct"></span>
+  <button id="pv" aria-label="Previous">‹</button>
+  <button id="nx" aria-label="Next">›</button>
+</div>
 <script>
 const S=[...document.querySelectorAll('.s')];let i=0;
 const bar=document.getElementById('bar'),ct=document.getElementById('ct');
